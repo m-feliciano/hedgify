@@ -24,14 +24,16 @@ function Copy-To-Remote {
     $Start = [DateTime]::Now
     $TempFile = $null
 
-    # Remove trailing slashes
-    $Source = $Source.TrimEnd('/', '\')
-
     if ($Source -notlike '*.zip') {
         $TempFile = "$([System.IO.Path]::GetTempFileName()).zip"
         Compress-Archive -Path $Source -DestinationPath $TempFile -Verbose -Force
         $Source = $TempFile
     }
+
+    $Source = $Source.Replace('\', '/')
+    $Destination = $Destination.Replace('\', '/')
+    # it will add a slash to the end of the destination if it doesn't have one
+    $Destination = $Destination.TrimEnd('/') + '/'
 
     # Add the remote path
     $FullDestination = $([string]::Concat($RemoteSSH, ':/', $Destination))

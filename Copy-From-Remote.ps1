@@ -25,9 +25,6 @@ function Copy-From-Remote {
     $TempFile = $null
     $TempFileName = $null
 
-    # Remove trailing slashes
-    $Source = $Source.TrimEnd('/', '\')
-
     # If the source is a directory, zip it up
     if ($Source -notlike '*.zip') {
         $TempFileName = "$([System.IO.Path]::GetRandomFileName()).zip"
@@ -36,6 +33,12 @@ function Copy-From-Remote {
         ssh $Server Compress-Archive -Path $Source -DestinationPath $TempFile -Verbose -Force
         $Source = $TempFile
     }
+
+
+    $Source = $Source.Replace('\', '/')
+    $Destination = $Destination.Replace('\', '/')
+    # add a slash to the end of the destination if it doesn't have one
+    $Destination = $Destination.TrimEnd('/') + '/'
 
     # Add the remote path
     $FullSource = $([string]::Concat($Server, ':/', $Source))
